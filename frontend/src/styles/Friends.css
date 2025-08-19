@@ -1,0 +1,101 @@
+/* src/components/FriendsChatRoom.css */
+
+.chat-container {
+  width: 90%;
+  max-width: 900px; /* bigger but still centered */
+  margin: 20px auto;
+  padding: 15px;
+  background: black;
+  border: 2px solid white;
+  border-radius: 10px;
+  font-family: "Courier New", monospace;
+  color: white;
+  box-shadow: 0 0 20px rgba(0, 150, 255, 0.6);
+}
+
+.chat-box {
+  height: 60vh; /* responsive height */
+  min-height: 350px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 10px;
+  background: #111;
+  border: 1px solid white;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.message {
+  margin-bottom: 10px;
+  max-width: 70%;
+  padding: 6px 10px; /* smaller padding */
+  border-radius: 6px;
+  word-wrap: break-word;
+  font-size: 0.95rem;
+}
+
+.message-meta {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-bottom: 2px;
+}
+
+.message.sent {
+  margin-left: 500px;
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  color: white;
+  text-align: right;
+  box-shadow: 0 0 10px rgba(0, 150, 255, 0.8);
+}
+
+.message.received {
+  margin-right: 500px;
+  background: #1a1a1a;
+  color: #0f0; /* hacker green */
+  border: 1px solid #0f0;
+  text-align: left;
+}
+
+.message-content {
+  font-size: 0.95rem;
+}
+
+.chat-input {
+  display: flex;
+  align-items: center;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 8px 10px; /* smaller input */
+  border: 2px solid white;
+  border-right: none;
+  background: black;
+  color: #0f0;
+  font-family: "Courier New", monospace;
+  font-size: 0.9rem;
+  border-radius: 6px 0 0 6px;
+  outline: none;
+}
+
+.chat-input input::placeholder {
+  color: #666;
+}
+
+.chat-input button {
+  padding: 8px 14px; /* smaller button */
+  background: #0072ff;
+  color: white;
+  border: 2px solid #0072ff;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.chat-input button:hover {
+  background: black;
+  color: red;
+  box-shadow: 0 0 8px red;
+}

@@ -1,0 +1,177 @@
+/* ===== Hacker ChatRoom.css (aligned with FriendsChatRoom.css) ===== */
+
+/* Wrapper */
+.chatroom-container {
+  width: 100%;
+  max-width: 900px; /* same as Friends */
+  margin: 20px auto;
+  padding: 15px;
+  background: #0a0f1e;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgb(243, 243, 243),
+              inset 0 0 10px rgba(0, 255, 170, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 60vh; /* same as FriendsChatRoom height */
+  min-height: 700px;
+  max-height: 100vh;
+  border: 2px solid #000000;
+  font-family: "Share Tech Mono", monospace;
+  color: #e0ffe0;
+  overflow: hidden;
+}
+
+/* Header */
+.chatroom-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #ffffff;
+}
+
+.chatroom-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #ffffff;
+  text-shadow: 0 0 10px #ffffff, 0 0 15px #000000;
+  animation: glitch 2s infinite;
+}
+
+.clear-btn {
+  font-size: 0.8rem;
+  background: transparent;
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #ffffff;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-transform: uppercase;
+}
+.clear-btn:hover {
+  background: #ffffff;
+  color: black;
+  box-shadow: 0 0 10px #ffffff;
+}
+
+/* Messages Area */
+.messages-box {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #111;
+  border: 1px solid #00ffaa20;
+  border-radius: 8px;
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+.messages-box::-webkit-scrollbar {
+  width: 6px;
+}
+.messages-box::-webkit-scrollbar-thumb {
+  background: #ffffff;
+  border-radius: 20px;
+}
+.messages-box::-webkit-scrollbar-thumb:hover {
+  background: #ffffff;
+}
+
+/* Message Wrapper */
+.message {
+  margin-bottom: 10px;
+  max-width: 70%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  word-wrap: break-word;
+  animation: fadeInUp 0.25s ease;
+}
+.message-right {
+  margin-left: 500px; /* current user on right */
+  background: rgba(7, 98, 177, 0.975);
+  border: 1px solid #00000080;
+  color: #ffffff;
+  text-shadow: 0 0 6px #0c0c0c;
+  border-bottom-right-radius: 1px;
+}
+.message-left {
+  margin-right: 500px; /* other users on left */
+  background: rgba(246, 168, 12, 0.899);
+  border: 1px solid #000000f7;
+  color: #ffffff;
+  text-shadow: 0 0 6px #000000;
+  border-bottom-left-radius: 1px;
+}
+
+/* Meta info */
+.sender-info {
+  font-size: 0.75rem;
+  color: #000000;
+  margin-bottom: 4px;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* Input Area */
+.input-area {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid #ffffff;
+  padding-top: 8px;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 2px solid #ffffff;
+  border-right: none;
+  background: #0d1529;
+  color: #fcfcfc;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 0.9rem;
+  border-radius: 6px 0 0 6px;
+  outline: none;
+  caret-color: #ffffff;
+}
+.chat-input:focus {
+  border-color: #ff0000;
+  box-shadow: 0 0 10px #020202;
+}
+
+.send-btn {
+  padding: 8px 14px;
+  background: #00ffaa;
+  color: #0a0f1e;
+  border: 2px solid #00ffaa;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+.send-btn:hover {
+  background: black;
+  color: red;
+  box-shadow: 0 0 8px red;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes glowPulse {
+  from { box-shadow: 0 0 4px transparent; }
+  to { box-shadow: 0 0 10px rgba(0, 255, 170, 0.5); }
+}
+@keyframes glitch {
+  0% { text-shadow: 2px 2px #ff0066, -2px -2px #00ffaa; }
+  20% { text-shadow: -2px -2px #ff0066, 2px 2px #00ffaa; }
+  40% { text-shadow: 2px -2px #ff0066, -2px 2px #00ffaa; }
+  60% { text-shadow: -2px 2px #ff0066, 2px -2px #00ffaa; }
+  100% { text-shadow: 2px 2px #ff0066, -2px -2px #00ffaa; }
+}
