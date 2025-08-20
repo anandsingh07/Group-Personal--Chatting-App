@@ -1,6 +1,6 @@
 const CryptoJS = require('crypto-js');
 
-const SECRET_KEY = process.env.ENCRYPTION_KEY || 'secret@123'; // Keep it secret
+const SECRET_KEY = process.env.ENCRYPTION_KEY || 'secret@123'; 
 
 exports.encrypt = (text) => CryptoJS.AES.encrypt(text, SECRET_KEY).toString();
 

@@ -6,7 +6,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('chatUser')) || null);
 
   const login = (data) => {
-    console.log('Login data:', data); // Debug
+    console.log('Login data:', data); 
     localStorage.setItem('chatUser', JSON.stringify(data));
     setUser(data);
   };
