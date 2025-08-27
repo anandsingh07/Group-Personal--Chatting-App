@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose'); // ✅ FIXED
+const mongoose = require('mongoose'); 
 const Message = require('../models/Message');
 const { decrypt } = require('../utils/encryption');
 const authMiddleware = require('../middleware/auth');
 
-// ✅ GROUP CHAT HISTORY
+
 router.get('/group/:groupId', authMiddleware, async (req, res) => {
   try {
-    const groupObjectId = new mongoose.Types.ObjectId(req.params.groupId); // ✅ Cast groupId to ObjectId
+    const groupObjectId = new mongoose.Types.ObjectId(req.params.groupId); 
     const messages = await Message.find({ group: groupObjectId })
       .sort('createdAt')
       .populate('sender', 'username');
