@@ -4,6 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Signup.css';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 export default function Signup() {
   const [form, setForm] = useState({ username: '', email: '', password: '' });
   const { login } = useContext(AuthContext);
@@ -13,7 +15,7 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await axios.post('http://localhost:5000/api/auth/signup', form);
+    const res = await axios.post(`${BACKEND_URL}/api/auth/signup`, form);
     login(res.data);
     navigate('/');
   };

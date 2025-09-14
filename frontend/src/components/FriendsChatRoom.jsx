@@ -4,7 +4,8 @@ import { io } from 'socket.io-client';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/Friends.css';
 
-const socket = io('http://localhost:5000'); // singleton socket
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const socket = io(BACKEND_URL);
 
 export default function FriendsChatRoom() {
   const { friendId } = useParams();
@@ -17,10 +18,8 @@ export default function FriendsChatRoom() {
   useEffect(() => {
     if (!friendId || !user?.user?.id) return;
 
-    // Join personal chat room
     socket.emit('joinRoom', roomId, false);
 
-    // Listen for new messages only
     const handleNewMessage = (msg) => {
       setMessages((prev) => [...prev, msg]);
     };
@@ -32,7 +31,7 @@ export default function FriendsChatRoom() {
       socket.off('newMessage', handleNewMessage);
       socket.off('chatCleared');
       socket.emit('leaveRoom', roomId);
-      setMessages([]); // clear frontend memory on unmount
+      setMessages([]);
     };
   }, [friendId, user, roomId]);
 
@@ -47,11 +46,11 @@ export default function FriendsChatRoom() {
       receiverId: friendId,
     });
 
-    setInput(''); // only clear input, don't add to messages locally
+    setInput('');
   };
 
   const clearChat = () => {
-    setMessages([]); // clears only frontend
+    setMessages([]);
   };
 
   return (

@@ -4,6 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../styles/GroupList.css'; 
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 export default function GroupList() {
   const { user } = useContext(AuthContext);
   const [groups, setGroups] = useState([]);
@@ -12,7 +14,7 @@ export default function GroupList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/groups')
+    axios.get(`${BACKEND_URL}/api/groups`)
       .then(res => setGroups(res.data))
       .catch(() => alert('Failed to load groups'));
   }, []);
@@ -28,7 +30,7 @@ export default function GroupList() {
 
     try {
       await axios.post(
-        'http://localhost:5000/api/groups/join',
+        `${BACKEND_URL}/api/groups/join`,
         {
           groupId,
           passcode: data.passcode,
@@ -56,8 +58,6 @@ export default function GroupList() {
 
   return (
     <div className="group-list-container">
-    
-
       <div className="joined-groups-container">
         {groups.map(group => (
           <div key={group._id} className="group-card">
@@ -76,19 +76,14 @@ export default function GroupList() {
                   value={formState[group._id]?.nickname || ''}
                   onChange={(e) => handleInputChange(group._id, 'nickname', e.target.value)}
                 />
-
-               <br>
-               
-               </br>
+                <br />
                 <input
                   type="password"
                   placeholder="Passcode"
-            
                   value={formState[group._id]?.passcode || ''}
                   onChange={(e) => handleInputChange(group._id, 'passcode', e.target.value)}
                 />
-                <br>
-                </br>
+                <br />
                 <button
                   disabled={loadingGroupId === group._id}
                   onClick={() => joinGroup(group._id)}

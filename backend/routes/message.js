@@ -26,7 +26,6 @@ router.get('/group/:groupId', authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ PERSONAL CHAT HISTORY
 router.get('/personal/:friendId', authMiddleware, async (req, res) => {
   const myId = req.userId;
   const friendId = req.params.friendId;
@@ -51,7 +50,7 @@ router.get('/personal/:friendId', authMiddleware, async (req, res) => {
     res.status(500).json({ msg: 'Failed to load personal messages' });
   }
 });
- // ✅ CLEAR CHAT (group or personal)
+ 
 router.delete('/clear', authMiddleware, async (req, res) => {
   try {
     const { isGroup, roomId, receiverId } = req.body;

@@ -3,6 +3,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 export default function UserSearch() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -22,14 +24,14 @@ export default function UserSearch() {
       setGroups([]);
 
       try {
-        const userRes = await axios.get(`http://localhost:5000/api/users/search/${query}`, {
+        const userRes = await axios.get(`${BACKEND_URL}/api/users/search/${query}`, {
           headers: { Authorization: user.token },
         });
         setTargetUser(userRes.data);
         setStatus('');
       } catch {
         try {
-          const groupRes = await axios.get(`http://localhost:5000/api/groups/search/${query}`, {
+          const groupRes = await axios.get(`${BACKEND_URL}/api/groups/search/${query}`, {
             headers: { Authorization: user.token },
           });
           if (groupRes.data.length === 0) {
@@ -50,7 +52,7 @@ export default function UserSearch() {
   const sendRequest = async () => {
     try {
       await axios.post(
-        'http://localhost:5000/api/users/send-request',
+        `${BACKEND_URL}/api/users/send-request`,
         { targetId: targetUser._id },
         { headers: { Authorization: user.token } }
       );
@@ -64,7 +66,7 @@ export default function UserSearch() {
     if (!nickname || !passcode) return alert('Please enter both nickname and passcode');
     try {
       await axios.post(
-        'http://localhost:5000/api/groups/join',
+        `${BACKEND_URL}/api/groups/join`,
         { groupId, passcode, nickname },
         { headers: { Authorization: user.token } }
       );

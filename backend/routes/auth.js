@@ -5,7 +5,7 @@ const User = require('../models/User');
 const generateUserId = require('../utils/generateUserId');
 const router = express.Router();
 
-// Signup Route
+
 router.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
   try {
@@ -28,7 +28,7 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-// Login Route
+
 router.post('/signin', async (req, res) => {
   const { email, password } = req.body;
   try {

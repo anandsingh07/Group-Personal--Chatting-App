@@ -3,7 +3,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
-// Auth Middleware
+
 const authMiddleware = (req, res, next) => {
   const token = req.headers.authorization;
   if (!token) return res.status(401).json({ msg: 'No token' });
@@ -17,14 +17,13 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-// 🔍 Search user by 6-digit ID
 router.get('/search/:id', authMiddleware, async (req, res) => {
   const user = await User.findOne({ userId: req.params.id }).select('username userId _id');
   if (!user) return res.status(404).json({ msg: 'User not found' });
   res.json(user);
 });
 
-// ➕ Send friend request
+
 router.post('/send-request', authMiddleware, async (req, res) => {
   const { targetId } = req.body;
   const from = await User.findById(req.userId);
@@ -46,7 +45,6 @@ router.post('/send-request', authMiddleware, async (req, res) => {
   res.json({ msg: 'Request sent' });
 });
 
-// ✅ Accept friend request
 router.post('/accept-request', authMiddleware, async (req, res) => {
   const { fromId } = req.body;
   const currentUser = await User.findById(req.userId);

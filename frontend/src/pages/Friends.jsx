@@ -3,6 +3,8 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 export default function Friends() {
   const { user } = useContext(AuthContext);
   const [friends, setFriends] = useState([]);
@@ -12,7 +14,7 @@ export default function Friends() {
 
   useEffect(() => {
     const fetch = async () => {
-      const res = await axios.get('http://localhost:5000/api/users/friends', {
+      const res = await axios.get(`${BACKEND_URL}/api/users/friends`, {
         headers: { Authorization: user.token }
       });
       setFriends(res.data.friends);
@@ -20,10 +22,11 @@ export default function Friends() {
       setSent(res.data.sent);
     };
     fetch();
-  }, []);
+  }, [user.token]);
 
   const acceptRequest = async (fromId) => {
-    await axios.post('http://localhost:5000/api/users/accept-request',
+    await axios.post(
+      `${BACKEND_URL}/api/users/accept-request`,
       { fromId },
       { headers: { Authorization: user.token } }
     );

@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import '../styles/ChatRoom.css';
 
-const socket = io("http://localhost:5000");
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const socket = io(BACKEND_URL);
 
 export default function ChatRoom({ roomId, user, isGroup, receiverId }) {
   const [messages, setMessages] = useState([]);
@@ -15,14 +16,12 @@ export default function ChatRoom({ roomId, user, isGroup, receiverId }) {
       return;
     }
 
-    // Join room
     socket.emit("joinRoom", roomId, isGroup);
 
-    // Fetch nicknames for group
     const fetchNicknames = async () => {
       if (!isGroup) return;
       try {
-        const res = await fetch(`http://localhost:5000/api/groups/${roomId}`, {
+        const res = await fetch(`${BACKEND_URL}/api/groups/${roomId}`, {
           headers: { Authorization: user.token },
         });
         const data = await res.json();
@@ -36,12 +35,11 @@ export default function ChatRoom({ roomId, user, isGroup, receiverId }) {
       }
     };
 
-    // Fetch old messages from API
     const fetchOldMessages = async () => {
       try {
         const endpoint = isGroup
-          ? `http://localhost:5000/api/messages/group/${roomId}`
-          : `http://localhost:5000/api/messages/personal/${receiverId}`;
+          ? `${BACKEND_URL}/api/messages/group/${roomId}`
+          : `${BACKEND_URL}/api/messages/personal/${receiverId}`;
         const res = await fetch(endpoint, {
           headers: { Authorization: user.token },
         });
@@ -55,17 +53,14 @@ export default function ChatRoom({ roomId, user, isGroup, receiverId }) {
     fetchNicknames();
     fetchOldMessages();
 
-    // Listen for new messages
     socket.on("newMessage", (msg) => {
       setMessages((prev) => [...prev, msg]);
     });
 
-    // Listen for initial personal chat messages
     socket.on("initialMessages", (msgs) => {
       setMessages(msgs);
     });
 
-    // Listen for chat clear
     socket.on("chatCleared", () => setMessages([]));
 
     return () => {
@@ -101,7 +96,7 @@ export default function ChatRoom({ roomId, user, isGroup, receiverId }) {
       receiverId: receiverId || null,
     });
 
-    setMessages([]); // instant UI feedback
+    setMessages([]); 
   };
 
   return (

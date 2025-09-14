@@ -4,6 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../styles/signin.css';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 export default function Signin() {
   const [form, setForm] = useState({ email: '', password: '' });
   const { login } = useContext(AuthContext);
@@ -15,7 +17,7 @@ export default function Signin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/signin', form);
+      const res = await axios.post(`${BACKEND_URL}/api/auth/signin`, form);
       console.log('Login API response:', JSON.stringify(res.data, null, 2));
       if (res.data.token && res.data.user?.id) {
         login(res.data);

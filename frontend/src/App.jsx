@@ -19,17 +19,14 @@ export default function App() {
       <Navbar />
 
       <Routes>
-        {/* Public routes */}
         {!user && (
           <>
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
-            {/* Redirect all other paths to signin */}
             <Route path="*" element={<Navigate to="/signin" replace />} />
           </>
         )}
 
-        {/* Protected routes */}
         {user && (
           <>
             <Route path="/" element={<GroupList />} />
@@ -38,7 +35,6 @@ export default function App() {
             <Route path="/group-chat/:groupId" element={<ChatRoomWrapper isGroup={true} />} />
             <Route path="/personal-chat/:friendId" element={<FriendsChatRoom />} />
             <Route path="/friends" element={<Friends />} />
-            {/* Redirect unknown routes to home */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </>
         )}
