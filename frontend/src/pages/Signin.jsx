@@ -1,4 +1,6 @@
 import { useState, useContext } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -11,22 +13,38 @@ export default function Signin() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const validateEmail = (email) => {
+    return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+  };
+
+  const validatePassword = (password) => {
+    // Minimum 8 chars, at least one letter and one number
+    return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password);
+  };
+
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateEmail(form.email)) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
+    if (!validatePassword(form.password)) {
+      toast.error('Password must be at least 8 characters and contain letters and numbers.');
+      return;
+    }
     try {
       const res = await axios.post(`${BACKEND_URL}/api/auth/signin`, form);
-      console.log('Login API response:', JSON.stringify(res.data, null, 2));
       if (res.data.token && res.data.user?.id) {
         login(res.data);
+        toast.success('Login successful!');
         navigate('/');
       } else {
-        console.error('❌ Invalid login response:', res.data);
+        toast.error('Invalid login response.');
       }
     } catch (err) {
-      console.error('❌ Login error:', err.response?.data || err.message);
+      toast.error(err.response?.data?.msg || 'Login failed.');
     }
   };
 
@@ -42,6 +60,7 @@ export default function Signin() {
             onChange={handleChange}
             placeholder=" "
             required
+            value={form.email}
           />
           <label>Email</label>
         </div>
@@ -53,12 +72,15 @@ export default function Signin() {
             onChange={handleChange}
             placeholder=" "
             required
+            value={form.password}
           />
           <label>Password</label>
         </div>
 
         <button>Sign In</button>
       </form>
+      {/* Toast container for popups */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }

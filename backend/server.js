@@ -57,11 +57,28 @@ io.on('connection', (socket) => {
     try {
       if (!text?.trim()) return;
 
-      const encrypted = encrypt(text);
+      let encrypted, decrypted;
+      if (isGroup) {
+        // For group messages, encrypt with each member's secretKey and send individually
+        const group = await Group.findById(roomId).populate('groupMembers.user');
+        if (!group) throw new Error('Group not found');
+        encrypted = {};
+        for (const member of group.groupMembers) {
+          const memberUser = member.user;
+          if (memberUser && memberUser.secretKey) {
+            encrypted[memberUser._id] = encrypt(text, memberUser.secretKey);
+          }
+        }
+      } else {
+        // Use receiver's secretKey for personal messages
+        const receiver = await User.findById(receiverId).select('secretKey');
+        if (!receiver || !receiver.secretKey) throw new Error('Receiver key not found');
+        encrypted = encrypt(text, receiver.secretKey);
+      }
 
       const msgData = {
         sender: senderId,
-        content: encrypted,
+        content: isGroup ? encrypted : encrypted,
         createdAt: new Date(),
         ...(isGroup ? { group: roomId } : { to: receiverId }),
       };
@@ -70,31 +87,40 @@ io.on('connection', (socket) => {
       await msg.save();
 
       if (isGroup) {
-        const group = await Group.findById(roomId);
-        const member = group.groupMembers.find(m => m.user.toString() === senderId);
-        const nickname = member ? member.nickname : 'Unknown';
-
-        io.to(roomId).emit('newMessage', {
-          sender: senderId,
-          nickname,
-          content: decrypt(encrypted),
-          createdAt: msg.createdAt,
-        });
+        // Send each member their own encrypted message
+        const group = await Group.findById(roomId).populate('groupMembers.user');
+        for (const member of group.groupMembers) {
+          const memberUser = member.user;
+          if (memberUser && memberUser.secretKey) {
+            const nickname = member.nickname || 'Unknown';
+            const decryptedMsg = decrypt(encrypted[memberUser._id], memberUser.secretKey);
+            io.to(roomId).emit('newMessage', {
+              sender: senderId,
+              nickname,
+              content: decryptedMsg,
+              createdAt: msg.createdAt,
+              forUser: memberUser._id,
+            });
+          }
+        }
       } else {
+        // Decrypt with receiver's key for display
+        const receiver = await User.findById(receiverId).select('secretKey username');
+        decrypted = decrypt(encrypted, receiver.secretKey);
+
         const messages = roomMessages.get(roomId) || [];
         messages.push({
           sender: senderId,
-          content: text,
+          content: decrypted,
           createdAt: msg.createdAt,
           receiverId,
         });
         roomMessages.set(roomId, messages);
 
-        const sender = await User.findById(senderId).select('username');
         io.to(roomId).emit('newMessage', {
           sender: senderId,
-          username: sender.username || 'Friend',
-          content: text,
+          username: receiver.username || 'Friend',
+          content: decrypted,
           createdAt: msg.createdAt,
         });
       }

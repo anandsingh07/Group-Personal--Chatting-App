@@ -6,6 +6,9 @@ const generateUserId = require('../utils/generateUserId');
 const router = express.Router();
 
 
+
+const crypto = require('crypto');
+
 router.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
   try {
@@ -18,7 +21,10 @@ router.post('/signup', async (req, res) => {
       userId = generateUserId();
     } while (await User.findOne({ userId }));
 
-    const user = new User({ username, email, password: hashed, userId });
+    // Generate a random 32-byte hex string as the user's secret key
+    const secretKey = crypto.randomBytes(32).toString('hex');
+
+    const user = new User({ username, email, password: hashed, userId, secretKey });
     await user.save();
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);

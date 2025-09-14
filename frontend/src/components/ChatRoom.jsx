@@ -1,22 +1,21 @@
-import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
+
+import { useEffect, useState, useRef } from "react";
+import { connectSocket } from "../socket";
 import '../styles/ChatRoom.css';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const socket = io(BACKEND_URL);
 
 export default function ChatRoom({ roomId, user, isGroup, receiverId }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [nicknameMap, setNicknameMap] = useState({});
+  const socketRef = useRef(null);
 
   useEffect(() => {
     if (!roomId || !user?.user?.id || (!isGroup && !receiverId)) {
       console.error('❌ Invalid props:', { roomId, user, isGroup, receiverId });
       return;
     }
-
-    socket.emit("joinRoom", roomId, isGroup);
 
     const fetchNicknames = async () => {
       if (!isGroup) return;
@@ -53,22 +52,31 @@ export default function ChatRoom({ roomId, user, isGroup, receiverId }) {
     fetchNicknames();
     fetchOldMessages();
 
-    socket.on("newMessage", (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    });
-
-    socket.on("initialMessages", (msgs) => {
-      setMessages(msgs);
-    });
-
-    socket.on("chatCleared", () => setMessages([]));
-
+    // Socket listeners will be attached after connection
     return () => {
-      socket.off("newMessage");
-      socket.off("initialMessages");
-      socket.off("chatCleared");
+      if (socketRef.current) {
+        socketRef.current.off("newMessage");
+        socketRef.current.off("initialMessages");
+        socketRef.current.off("chatCleared");
+      }
     };
   }, [roomId, user, isGroup, receiverId]);
+
+  const ensureSocketConnected = () => {
+    if (!socketRef.current) {
+      socketRef.current = connectSocket();
+      socketRef.current.emit("joinRoom", roomId, isGroup);
+      socketRef.current.on("newMessage", (msg) => {
+        // For group chats, only show messages intended for this user
+        if (isGroup && msg.forUser && msg.forUser !== user.user.id) return;
+        setMessages((prev) => [...prev, msg]);
+      });
+      socketRef.current.on("initialMessages", (msgs) => {
+        setMessages(msgs);
+      });
+      socketRef.current.on("chatCleared", () => setMessages([]));
+    }
+  };
 
   const sendMessage = () => {
     if (!input.trim()) return;
@@ -76,8 +84,8 @@ export default function ChatRoom({ roomId, user, isGroup, receiverId }) {
       console.error("❌ Cannot send message: senderId is undefined");
       return;
     }
-
-    socket.emit("sendMessage", {
+    ensureSocketConnected();
+    socketRef.current.emit("sendMessage", {
       roomId,
       senderId: user.user.id,
       text: input,
@@ -89,13 +97,12 @@ export default function ChatRoom({ roomId, user, isGroup, receiverId }) {
 
   const clearChat = () => {
     if (!user?.user?.id) return;
-
-    socket.emit("clearChat", {
+    ensureSocketConnected();
+    socketRef.current.emit("clearChat", {
       roomId,
       isGroup,
       receiverId: receiverId || null,
     });
-
     setMessages([]); 
   };
 

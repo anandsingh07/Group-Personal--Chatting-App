@@ -1,5 +1,10 @@
 import { io } from 'socket.io-client';
 
-const socket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000');
+let socket = null;
 
-export default socket;
+export function connectSocket() {
+	if (!socket) {
+		socket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000');
+	}
+	return socket;
+}

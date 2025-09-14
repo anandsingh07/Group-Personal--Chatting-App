@@ -1,57 +1,64 @@
-import { useEffect, useState, useContext } from 'react';
-import { useParams } from 'react-router-dom';
-import { io } from 'socket.io-client';
-import { AuthContext } from '../context/AuthContext';
-import '../styles/Friends.css';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const socket = io(BACKEND_URL);
+import { useRef, useState, useEffect, useContext } from 'react';
+import { connectSocket } from '../socket';
+import { AuthContext } from '../context/AuthContext';
+import { useParams } from 'react-router-dom';
+import '../styles/Friends.css';
 
 export default function FriendsChatRoom() {
   const { friendId } = useParams();
   const { user } = useContext(AuthContext);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const socketRef = useRef(null);
 
   const roomId = [user?.user?.id, friendId].sort().join('-');
 
-  useEffect(() => {
-    if (!friendId || !user?.user?.id) return;
-
-    socket.emit('joinRoom', roomId, false);
-
-    const handleNewMessage = (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    };
-
-    socket.on('newMessage', handleNewMessage);
-    socket.on('chatCleared', () => setMessages([]));
-
-    return () => {
-      socket.off('newMessage', handleNewMessage);
-      socket.off('chatCleared');
-      socket.emit('leaveRoom', roomId);
-      setMessages([]);
-    };
-  }, [friendId, user, roomId]);
+  const ensureSocketConnected = () => {
+    if (!socketRef.current) {
+      socketRef.current = connectSocket();
+      socketRef.current.emit('joinRoom', roomId, false);
+      socketRef.current.on('newMessage', (msg) => {
+        setMessages((prev) => [...prev, msg]);
+      });
+      socketRef.current.on('chatCleared', () => setMessages([]));
+    }
+  };
 
   const sendMessage = () => {
     if (!input.trim() || !user?.user?.id || !friendId) return;
-
-    socket.emit('sendMessage', {
+    ensureSocketConnected();
+    socketRef.current.emit('sendMessage', {
       roomId,
       senderId: user.user.id,
       text: input,
       isGroup: false,
       receiverId: friendId,
     });
-
     setInput('');
   };
 
   const clearChat = () => {
+    ensureSocketConnected();
+    socketRef.current.emit('clearChat', {
+      roomId,
+      isGroup: false,
+      receiverId: friendId,
+    });
     setMessages([]);
   };
+
+  // Clean up listeners on unmount
+  useEffect(() => {
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off('newMessage');
+        socketRef.current.off('chatCleared');
+        socketRef.current.emit('leaveRoom', roomId);
+      }
+      setMessages([]);
+    };
+  }, [roomId]);
 
   return (
     <div className="chat-container">
